@@ -1,0 +1,43 @@
+---
+services:
+  ts-foundry:
+    restart: unless-stopped
+    image: tailscale/tailscale:latest
+    container_name: ts-foundry
+    hostname: foundry
+    volumes:
+      - ${PWD}/ts/state:/var/lib/tailscale
+      - ${PWD}/ts/config:/config
+    environment:
+       - TS_AUTHKEY=${TS_AUTHKEY}
+       - TS_EXTRA_ARGS=--advertise-tags=tag:container
+       - TS_SERVE_CONFIG=/config/foundry.json
+       - TS_STATE_DIR=/var/lib/tailscale
+       - TZ=America/Denver
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+
+  foundry:
+    image: felddy/foundryvtt:release
+    restart: unless-stopped
+    depends_on:
+      - ts-foundry
+    network_mode: service:ts-foundry
+    container_name: foundry
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+    environment:
+      - FOUNDRY_PASSWORD=${FOUNDRY_PASSWORD}
+      - FOUNDRY_USERNAME=${FOUNDRY_USERNAME}
+      - CONTAINER_PRESERVE_CONFIG=true
+      - FOUNDRY_ADMIN_KEY=${FOUNDRY_ADMIN_KEY}
+      - FOUNDRY_LICENSE_KEY=${FOUNDRY_LICENSE_KEY}
+      - FOUNDRY_CSS_THEME=fantasy
+      #- FOUNDRY_HOSTNAME=foundry
+      - FOUNDRY_PROTOCOL=4
+      - TIMEZONE=America/Denver

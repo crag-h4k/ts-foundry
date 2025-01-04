@@ -1,0 +1,5 @@
+.env
+.scratch.md
+data/**
+ts/state/**
+secrets.json
