@@ -19,12 +19,24 @@ services:
     cap_add:
       - net_admin
       - sys_module
+    healthcheck:
+      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      test: [
+        "CMD",
+        "tailscale", "netcheck"
+        "&&",
+        "wget", "-q", "-O", "/dev/null", "https://foundryvtt.com"
+      ]
 
   foundry:
     image: felddy/foundryvtt:release
     restart: unless-stopped
     depends_on:
-      - ts-foundry
+      ts-foundry:
+        condition: service_healthy
     network_mode: service:ts-foundry
     container_name: foundry
     volumes:
@@ -38,6 +50,5 @@ services:
       - FOUNDRY_ADMIN_KEY=${FOUNDRY_ADMIN_KEY}
       - FOUNDRY_LICENSE_KEY=${FOUNDRY_LICENSE_KEY}
       - FOUNDRY_CSS_THEME=fantasy
-      #- FOUNDRY_HOSTNAME=foundry
       - FOUNDRY_PROTOCOL=4
       - TIMEZONE=America/Denver
