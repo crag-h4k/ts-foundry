@@ -1,0 +1,22 @@
+---
+services:
+  foundry:
+    image: felddy/foundryvtt:release
+    restart: unless-stopped
+    container_name: foundry
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+    environment:
+      - CONTAINER_PRESERVE_CONFIG=true
+      - FOUNDRY_ADMIN_KEY=${FOUNDRY_ADMIN_KEY}
+      - FOUNDRY_COMPRESS_WEBSOCKET=true
+      - FOUNDRY_CSS_THEME=fantasy
+      - FOUNDRY_LICENSE_KEY=${FOUNDRY_LICENSE_KEY}
+      - FOUNDRY_PASSWORD=${FOUNDRY_PASSWORD}
+      - FOUNDRY_PROTOCOL=4
+      - FOUNDRY_USERNAME=${FOUNDRY_USERNAME}
+      - TIMEZONE=America/Denver
+    ports:
+      - 30000:30000/tcp
