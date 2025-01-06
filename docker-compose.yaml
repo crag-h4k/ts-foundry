@@ -1,5 +1,28 @@
 ---
 services:
+  foundry:
+    image: felddy/foundryvtt:release
+    restart: unless-stopped
+    depends_on:
+      ts-foundry:
+        condition: service_healthy
+    network_mode: service:ts-foundry
+    container_name: foundry
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+    environment:
+      - CONTAINER_PRESERVE_CONFIG=true
+      - FOUNDRY_ADMIN_KEY=${FOUNDRY_ADMIN_KEY}
+      - FOUNDRY_COMPRESS_WEBSOCKET=true
+      - FOUNDRY_CSS_THEME=fantasy
+      - FOUNDRY_LICENSE_KEY=${FOUNDRY_LICENSE_KEY}
+      - FOUNDRY_PASSWORD=${FOUNDRY_PASSWORD}
+      - FOUNDRY_PROTOCOL=4
+      - FOUNDRY_USERNAME=${FOUNDRY_USERNAME}
+      - TIMEZONE=America/Denver
+
   ts-foundry:
     restart: unless-stopped
     image: tailscale/tailscale:latest
@@ -26,29 +49,8 @@ services:
       retries: 5
       test: [
         "CMD",
-        "tailscale", "netcheck"
+        "tailscale", "netcheck",
         "&&",
         "wget", "-q", "-O", "/dev/null", "https://foundryvtt.com"
       ]
 
-  foundry:
-    image: felddy/foundryvtt:release
-    restart: unless-stopped
-    depends_on:
-      ts-foundry:
-        condition: service_healthy
-    network_mode: service:ts-foundry
-    container_name: foundry
-    volumes:
-      - type: bind
-        source: ./data
-        target: /data
-    environment:
-      - FOUNDRY_PASSWORD=${FOUNDRY_PASSWORD}
-      - FOUNDRY_USERNAME=${FOUNDRY_USERNAME}
-      - CONTAINER_PRESERVE_CONFIG=true
-      - FOUNDRY_ADMIN_KEY=${FOUNDRY_ADMIN_KEY}
-      - FOUNDRY_LICENSE_KEY=${FOUNDRY_LICENSE_KEY}
-      - FOUNDRY_CSS_THEME=fantasy
-      - FOUNDRY_PROTOCOL=4
-      - TIMEZONE=America/Denver
